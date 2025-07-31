@@ -36,10 +36,7 @@ services:
 
   n8n-workers:
     image: n8nio/n8n:latest
-    container_name: n8n-workers
     restart: unless-stopped
-    ports: 
-      - "5676:5678"
     volumes:
       - ./n8n-data:/home/node/.n8n
     depends_on:

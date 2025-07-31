@@ -1,6 +1,29 @@
-# Tutorial Completo: Instalando o N8N a partir do seu Repositório
+# Tutorial : Instalando o N8N a partir desse Repositório
 
-Este guia completo irá detalhar o processo de configuração do seu ambiente no Windows 11, desde a instalação das ferramentas essenciais até a clonagem e execução do seu projeto N8N personalizado.
+Este guia completo irá detalhar o processo de configuração do seu ambiente no Windows, desde a instalação das ferramentas essenciais até a clonagem e execução do seu projeto N8N personalizado.
+
+---
+
+### **Entendendo a Arquitetura (Por que usar N8N em Modo Fila?)**
+
+Antes de começar, é importante entender os componentes que estamos usando e por que eles tornam sua automação mais poderosa e robusta.
+
+#### **N8N em Modo Fila (`Queue Mode`)**
+Em vez de rodar o N8N como um único processo, nós o separamos em múltiplos serviços especializados. Isso evita que a interface do usuário (o editor) trave ou fique lenta enquanto fluxos de trabalho pesados ou demorados estão sendo executados. Sua configuração divide o trabalho da seguinte forma:
+* **Editor (`n8n-editor`):** Onde você cria e gerencia seus workflows.
+* **Workers (`n8n-workers`):** Processos dedicados exclusivamente a executar os workflows. Você pode ter vários workers para processar muitas tarefas em paralelo. (docker-compose up -d --scale n8n-workers=X para escalar a quantidade de trabalhadores.)
+* **Webhooks (`n8n-webhooks`):** Um serviço otimizado apenas para receber chamadas de webhooks instantaneamente, sem sobrecarregar o editor.
+
+#### **PostgreSQL + `pgvector` (O Cérebro Persistente)**
+O PostgreSQL é o banco de dados que atua como a memória permanente do seu N8N. Ele armazena:
+* Todos os seus workflows.
+* Suas credenciais de forma segura.
+* O histórico de todas as execuções.
+
+A imagem `ankane/pgvector` que você escolheu adiciona um superpoder: a capacidade de armazenar e consultar "vetores". Isso é essencial para aplicações de Inteligência Artificial, permitindo que você crie workflows com busca semântica, assistentes de IA e muito mais.
+
+#### **Redis (O Gerenciador de Filas)**
+O Redis funciona como um sistema de mensagens ou um "gerenciador de tráfego" extremamente rápido. Quando um workflow precisa ser executado (seja por um webhook ou manualmente), a solicitação não vai direto para o worker. Em vez disso, ela é colocada em uma fila no Redis. Os workers, que estão sempre monitorando essa fila, pegam a próxima tarefa disponível e a executam. Isso garante que nenhuma tarefa seja perdida e que o sistema possa lidar com picos de demanda de forma eficiente.
 
 ---
 
